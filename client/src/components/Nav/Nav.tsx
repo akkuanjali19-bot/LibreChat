@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useState, useMemo, memo, lazy, Suspense, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  memo,
+  lazy,
+  Suspense,
+  useRef,
+} from 'react';
 import { useRecoilValue } from 'recoil';
 import { useMediaQuery } from '@librechat/client';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
@@ -31,7 +40,9 @@ const NavMask = memo(
       id="mobile-nav-mask-toggle"
       role="button"
       tabIndex={0}
-      className={`nav-mask transition-opacity duration-200 ease-in-out ${navVisible ? 'active opacity-100' : 'opacity-0'}`}
+      className={`nav-mask transition-opacity duration-200 ease-in-out ${
+        navVisible ? 'active opacity-100' : 'opacity-0'
+      }`}
       onClick={toggleNavVisible}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -54,196 +65,92 @@ const Nav = memo(
     setNavVisible: React.Dispatch<React.SetStateAction<boolean>>;
   }) => {
     const localize = useLocalize();
-    const { isAuthenticated } = useAuthContext();
-
-    const [navWidth, setNavWidth] = useState(NAV_WIDTH_DESKTOP);
-    const isSmallScreen = useMediaQuery('(max-width: 768px)');
-    const [newUser, setNewUser] = useLocalStorage('newUser', true);
-    const [showLoading, setShowLoading] = useState(false);
-    const [tags, setTags] = useState<string[]>([]);
-
-    const hasAccessToBookmarks = useHasAccess({
-      permissionType: PermissionTypes.BOOKMARKS,
-      permission: Permissions.USE,
-    });
-
-    const search = useRecoilValue(store.search);
-
-    const { data, fetchNextPage, isFetchingNextPage, isLoading, isFetching, refetch } =
-      useConversationsInfiniteQuery(
-        {
-          tags: tags.length === 0 ? undefined : tags,
-          search: search.debouncedQuery || undefined,
-        },
-        {
-          enabled: isAuthenticated,
-          staleTime: 30000,
-          cacheTime: 300000,
-        },
-      );
-
-    const computedHasNextPage = useMemo(() => {
-      if (data?.pages && data.pages.length > 0) {
-        const lastPage: ConversationListResponse = data.pages[data.pages.length - 1];
-        return lastPage.nextCursor !== null;
-      }
-      return false;
-    }, [data?.pages]);
-
-    const outerContainerRef = useRef<HTMLDivElement>(null);
-    const listRef = useRef<any>(null);
-
-    const { moveToTop } = useNavScrolling<ConversationListResponse>({
-      setShowLoading,
-      fetchNextPage: async (options?) => {
-        if (computedHasNextPage) {
-          return fetchNextPage(options);
-        }
-        return Promise.resolve(
-          {} as InfiniteQueryObserverResult<ConversationListResponse, unknown>,
-        );
-      },
-      isFetchingNext: isFetchingNextPage,
-    });
-
-    const conversations = useMemo(() => {
-      return data ? data.pages.flatMap((page) => page.conversations) : [];
-    }, [data]);
+    const { user } = useAuthContext();
+    const { hasAccess } = useHasAccess();
+    const [search, setSearch] = useState('');
+    const [scrollRef, scrollToTop] = useNavScrolling(navVisible);
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const [showBookmarks] = useLocalStorage('showBookmarks', false);
+    const conversationsQuery = useConversationsInfiniteQuery(search);
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = conversationsQuery;
+    const flatConversations = useMemo(
+      () => (data?.pages ?? []).flatMap((page) => page.conversations ?? []),
+      [data],
+    );
 
     const toggleNavVisible = useCallback(() => {
-      setNavVisible((prev: boolean) => {
-        localStorage.setItem('navVisible', JSON.stringify(!prev));
-        return !prev;
-      });
-      if (newUser) {
-        setNewUser(false);
-      }
-    }, [newUser, setNavVisible, setNewUser]);
-
-    const itemToggleNav = useCallback(() => {
-      if (isSmallScreen) {
-        toggleNavVisible();
-      }
-    }, [isSmallScreen, toggleNavVisible]);
+      setNavVisible((prev) => !prev);
+    }, [setNavVisible]);
 
     useEffect(() => {
-      if (isSmallScreen) {
-        const savedNavVisible = localStorage.getItem('navVisible');
-        if (savedNavVisible === null) {
-          toggleNavVisible();
-        }
-        setNavWidth(NAV_WIDTH_MOBILE);
-      } else {
-        setNavWidth(NAV_WIDTH_DESKTOP);
+      if (!isMobile) {
+        setNavVisible(true);
       }
-    }, [isSmallScreen, toggleNavVisible]);
-
-    useEffect(() => {
-      refetch();
-    }, [tags, refetch]);
-
-    const loadMoreConversations = useCallback(() => {
-      if (isFetchingNextPage || !computedHasNextPage) {
-        return;
-      }
-
-      fetchNextPage();
-    }, [isFetchingNextPage, computedHasNextPage, fetchNextPage]);
-
-    const subHeaders = useMemo(
-      () => search.enabled === true && <SearchBar isSmallScreen={isSmallScreen} />,
-      [search.enabled, isSmallScreen],
-    );
-
-    const headerButtons = useMemo(
-      () => (
-        <>
-          <Suspense fallback={null}>
-            <AgentMarketplaceButton isSmallScreen={isSmallScreen} toggleNav={toggleNavVisible} />
-          </Suspense>
-          {hasAccessToBookmarks && (
-            <>
-              <div className="mt-1.5" />
-              <Suspense fallback={null}>
-                <BookmarkNav tags={tags} setTags={setTags} isSmallScreen={isSmallScreen} />
-              </Suspense>
-            </>
-          )}
-        </>
-      ),
-      [hasAccessToBookmarks, tags, isSmallScreen, toggleNavVisible],
-    );
-
-    const [isSearchLoading, setIsSearchLoading] = useState(
-      !!search.query && (search.isTyping || isLoading || isFetching),
-    );
-
-    useEffect(() => {
-      if (search.isTyping) {
-        setIsSearchLoading(true);
-      } else if (!isLoading && !isFetching) {
-        setIsSearchLoading(false);
-      } else if (!!search.query && (isLoading || isFetching)) {
-        setIsSearchLoading(true);
-      }
-    }, [search.query, search.isTyping, isLoading, isFetching]);
+    }, [isMobile, setNavVisible]);
 
     return (
       <>
-        <div
-          data-testid="nav"
+        {/* Dim background on mobile when nav open */}
+        {isMobile && <NavMask navVisible={navVisible} toggleNavVisible={toggleNavVisible} />}
+
+        <nav
+          id="sidebar"
           className={cn(
-            'nav active max-w-[320px] flex-shrink-0 transform overflow-x-hidden bg-surface-primary-alt transition-all duration-200 ease-in-out',
-            'md:max-w-[260px]',
+            'fixed left-0 top-0 z-20 flex h-full flex-col border-r border-gray-200 bg-token-main-surface-primary dark:border-gray-700 dark:bg-token-main-surface-secondary',
+            navVisible ? 'translate-x-0' : '-translate-x-full',
+            'transition-transform duration-200 ease-in-out',
           )}
           style={{
-            width: navVisible ? navWidth : '0px',
-            transform: navVisible ? 'translateX(0)' : 'translateX(-100%)',
+            width: isMobile ? NAV_WIDTH_MOBILE : NAV_WIDTH_DESKTOP,
           }}
         >
-          <div className="h-full w-[320px] md:w-[260px]">
-            <div className="flex h-full flex-col">
-              <div
-                className={`flex h-full flex-col transition-opacity duration-200 ease-in-out ${navVisible ? 'opacity-100' : 'opacity-0'}`}
-              >
-                <div className="flex h-full flex-col">
-                  <nav
-                    id="chat-history-nav"
-                    aria-label={localize('com_ui_chat_history')}
-                    className="flex h-full flex-col px-2 pb-3.5 md:px-3"
-                  >
-                    <div className="flex flex-1 flex-col" ref={outerContainerRef}>
-                      <MemoNewChat
-                        subHeaders={subHeaders}
-                        toggleNav={toggleNavVisible}
-                        headerButtons={headerButtons}
-                        isSmallScreen={isSmallScreen}
-                      />
-                      <Conversations
-                        conversations={conversations}
-                        moveToTop={moveToTop}
-                        toggleNav={itemToggleNav}
-                        containerRef={listRef}
-                        loadMoreConversations={loadMoreConversations}
-                        isLoading={isFetchingNextPage || showLoading || isLoading}
-                        isSearchLoading={isSearchLoading}
-                      />
-                    </div>
-                    <Suspense fallback={null}>
-                      <AccountSettings />
-                    </Suspense>
-                  </nav>
-                </div>
-              </div>
-            </div>
+          {/* ✅ Custom Brand Header */}
+          <div className="flex items-center justify-center h-[60px] border-b border-gray-200 dark:border-gray-700">
+            <h1 className="text-lg font-semibold text-gradient tracking-wide">
+              ZenoAI <span className="text-xs text-gray-400">by NGAI</span>
+            </h1>
           </div>
-        </div>
-        {isSmallScreen && <NavMask navVisible={navVisible} toggleNavVisible={toggleNavVisible} />}
+
+          {/* 🔍 Search */}
+          <div className="p-3">
+            <SearchBar search={search} setSearch={setSearch} />
+          </div>
+
+          {/* 🧠 New Chat button */}
+          <div className="px-3">
+            <MemoNewChat />
+          </div>
+
+          {/* 💬 Conversations list */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3">
+            <Conversations
+              search={search}
+              flatConversations={flatConversations}
+              fetchNextPage={fetchNextPage as () => Promise<InfiniteQueryObserverResult<ConversationListResponse>>}
+              hasNextPage={!!hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              scrollToTop={scrollToTop}
+            />
+          </div>
+
+          {/* ⭐ Bookmarks (optional) */}
+          {showBookmarks && (
+            <Suspense fallback={null}>
+              <BookmarkNav />
+            </Suspense>
+          )}
+
+          {/* 🧩 Bottom Section */}
+          <div className="border-t border-gray-200 dark:border-gray-700 p-3 mt-auto space-y-2">
+            <Suspense fallback={null}>
+              {hasAccess(PermissionTypes.Marketplace, Permissions.Read) && <AgentMarketplaceButton />}
+              <AccountSettings />
+            </Suspense>
+          </div>
+        </nav>
       </>
     );
   },
 );
-
-Nav.displayName = 'Nav';
 
 export default Nav;
