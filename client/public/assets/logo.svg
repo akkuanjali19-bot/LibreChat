@@ -9,28 +9,28 @@
 
   <!-- The Stylized 'Z' Symbol (The first letter) -->
   <g transform="translate(10 10)">
-    <!-- Redrawn Z shape: A single, continuous, smoothly rounded path (like a ribbon) to perfectly match the logo. -->
+    <!-- V3 Z shape: A very smooth, rounded "ribbon" path with pronounced curvature, scaled and skewed to match the logo precisely. -->
     <path
       id="ZShape"
       fill="url(#ZGradient)"
-      d="M20 0H80C88.8366 0 96 7.16344 96 16V30C96 38.8366 88.8366 46 80 46H20C11.1634 46 4 53.1634 4 62V76C4 84.8366 11.1634 92 20 92H80C88.8366 92 96 84.8366 96 76V62C96 53.1634 88.8366 46 80 46H20C11.1634 46 4 38.8366 4 30V16C4 7.16344 11.1634 0 20 0Z"
-      style="transform: scale(0.9, 0.9); transform-origin: 50% 50%;"
-      transform="skewX(-15) translate(0 4)"
+      d="M20 0H80C93.2548 0 104 10.7452 104 24V32C104 45.2548 93.2548 56 80 56H20C6.74516 56 -4 66.7452 -4 80V88C-4 101.255 6.74516 112 20 112H80C93.2548 112 104 101.255 104 88V80C104 66.7452 93.2548 56 80 56H20C6.74516 56 -4 45.2548 -4 32V24C-4 10.7452 6.74516 0 20 0Z"
+      style="transform-origin: 50% 50%;"
+      transform="scale(0.8, 0.8) skewX(-15) translate(10 -1)"
     />
 
     <!-- Circuitry Detail (placed inside the bottom-left curve of the 'Z') -->
-    <!-- Adjusted position for the new, smoother 'Z' path. -->
-    <g transform="translate(18 57) scale(0.3)" fill="#FFFFFF" opacity="0.4">
+    <!-- Position and scale adjusted to be much smaller and sit exactly in the corner fold. -->
+    <g transform="translate(23 60) scale(0.25)" fill="#FFFFFF" opacity="0.4">
       <!-- Main curved circuit line -->
-      <path d="M10 50 L 50 10 C 60 0 80 0 90 10 L 120 40" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M10 50 L 50 10 C 60 0 80 0 90 10 L 120 40" stroke="#FFFFFF" stroke-width="10" fill="none" stroke-linecap="round"/>
       <!-- Small pads/dots -->
-      <circle cx="20" cy="50" r="5"/>
-      <circle cx="50" cy="10" r="5"/>
-      <circle cx="90" cy="10" r="5"/>
-      <circle cx="120" cy="40" r="5"/>
+      <circle cx="20" cy="50" r="6"/>
+      <circle cx="50" cy="10" r="6"/>
+      <circle cx="90" cy="10" r="6"/>
+      <circle cx="120" cy="40" r="6"/>
       <!-- Connecting line segments -->
-      <line x1="90" y1="10" x2="100" y2="10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-      <line x1="85" y1="15" x2="85" y2="25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+      <line x1="90" y1="10" x2="100" y2="10" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+      <line x1="85" y1="15" x2="85" y2="25" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
     </g>
   </g>
 
