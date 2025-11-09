@@ -1,13 +1,5 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  memo,
-  lazy,
-  Suspense,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useState, useMemo, memo, lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { useMediaQuery } from '@librechat/client';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
@@ -40,9 +32,7 @@ const NavMask = memo(
       id="mobile-nav-mask-toggle"
       role="button"
       tabIndex={0}
-      className={`nav-mask transition-opacity duration-200 ease-in-out ${
-        navVisible ? 'active opacity-100' : 'opacity-0'
-      }`}
+      className={`nav-mask transition-opacity duration-200 ease-in-out ${navVisible ? 'active opacity-100' : 'opacity-0'}`}
       onClick={toggleNavVisible}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -66,88 +56,106 @@ const Nav = memo(
   }) => {
     const localize = useLocalize();
     const { user } = useAuthContext();
-    const { hasAccess } = useHasAccess();
-    const [search, setSearch] = useState('');
-    const [scrollRef, scrollToTop] = useNavScrolling(navVisible);
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const [showBookmarks] = useLocalStorage('showBookmarks', false);
-    const conversationsQuery = useConversationsInfiniteQuery(search);
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = conversationsQuery;
-    const flatConversations = useMemo(
-      () => (data?.pages ?? []).flatMap((page) => page.conversations ?? []),
+    const hasPermission = useHasAccess([PermissionTypes.Chat]);
+    const [search, setSearch] = useState('');
+    const { ref, onScroll } = useNavScrolling();
+    const [storedWidth, setStoredWidth] = useLocalStorage('navWidth', NAV_WIDTH_DESKTOP);
+
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+      useConversationsInfiniteQuery(search);
+
+    const conversations = useMemo(
+      () => data?.pages.flatMap((page) => page.items) || [],
       [data],
     );
 
     const toggleNavVisible = useCallback(() => {
-      setNavVisible((prev) => !prev);
+      setNavVisible((prev) => {
+        localStorage.setItem('navVisible', JSON.stringify(!prev));
+        return !prev;
+      });
     }, [setNavVisible]);
 
     useEffect(() => {
-      if (!isMobile) {
-        setNavVisible(true);
+      if (!isMobile && storedWidth !== NAV_WIDTH_DESKTOP) {
+        setStoredWidth(NAV_WIDTH_DESKTOP);
       }
-    }, [isMobile, setNavVisible]);
+    }, [isMobile, storedWidth, setStoredWidth]);
 
     return (
       <>
-        {/* Dim background on mobile when nav open */}
-        {isMobile && <NavMask navVisible={navVisible} toggleNavVisible={toggleNavVisible} />}
-
-        <nav
-          id="sidebar"
+        <aside
+          id="nav"
+          ref={ref}
           className={cn(
-            'fixed left-0 top-0 z-20 flex h-full flex-col border-r border-gray-200 bg-token-main-surface-primary dark:border-gray-700 dark:bg-token-main-surface-secondary',
+            'nav fixed inset-y-0 left-0 z-40 flex flex-col bg-token-main-surface-primary shadow-lg transition-transform duration-200 ease-in-out',
             navVisible ? 'translate-x-0' : '-translate-x-full',
-            'transition-transform duration-200 ease-in-out',
           )}
           style={{
-            width: isMobile ? NAV_WIDTH_MOBILE : NAV_WIDTH_DESKTOP,
+            width: isMobile ? NAV_WIDTH_MOBILE : storedWidth,
           }}
+          onScroll={onScroll}
         >
-          {/* ✅ Custom Brand Header */}
-          <div className="flex items-center justify-center h-[60px] border-b border-gray-200 dark:border-gray-700">
-            <h1 className="text-lg font-semibold text-gradient tracking-wide">
-              ZenoAI <span className="text-xs text-gray-400">by NGAI</span>
-            </h1>
-          </div>
-
-          {/* 🔍 Search */}
+          {/* --- Top New Chat Button --- */}
           <div className="p-3">
-            <SearchBar search={search} setSearch={setSearch} />
-          </div>
-
-          {/* 🧠 New Chat button */}
-          <div className="px-3">
             <MemoNewChat />
           </div>
 
-          {/* 💬 Conversations list */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3">
-            <Conversations
-              search={search}
-              flatConversations={flatConversations}
-              fetchNextPage={fetchNextPage as () => Promise<InfiniteQueryObserverResult<ConversationListResponse>>}
-              hasNextPage={!!hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              scrollToTop={scrollToTop}
-            />
-          </div>
+          {/* --- Search Bar --- */}
+          <SearchBar search={search} setSearch={setSearch} />
 
-          {/* ⭐ Bookmarks (optional) */}
-          {showBookmarks && (
-            <Suspense fallback={null}>
-              <BookmarkNav />
-            </Suspense>
+          {/* --- Conversation List --- */}
+          {hasPermission(Permissions.Chat) && (
+            <Conversations
+              conversations={conversations}
+              fetchNextPage={fetchNextPage as () => Promise<InfiniteQueryObserverResult<ConversationListResponse>>}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+            />
           )}
 
-          {/* 🧩 Bottom Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-3 mt-auto space-y-2">
-            <Suspense fallback={null}>
-              {hasAccess(PermissionTypes.Marketplace, Permissions.Read) && <AgentMarketplaceButton />}
-              <AccountSettings />
-            </Suspense>
+          {/* --- Optional Bookmarks & Agents --- */}
+          <Suspense fallback={null}>
+            <BookmarkNav />
+          </Suspense>
+
+          <Suspense fallback={null}>
+            <AgentMarketplaceButton />
+          </Suspense>
+
+          {/* --- Account Settings --- */}
+          <Suspense fallback={null}>
+            <AccountSettings />
+          </Suspense>
+
+          {/* --- 🆕 ABOUT SECTION --- */}
+          <div className="mt-4 border-t border-gray-700 pt-4 mx-3">
+            <Link
+              to="/about"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition"
+              onClick={() => isMobile && toggleNavVisible()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M11.25 9V3.75m0 0L9 6m2.25-2.25L13.5 6M12 12h.008v.008H12V12zm0 3h.008v.008H12V15z"
+                />
+              </svg>
+              About
+            </Link>
           </div>
-        </nav>
+        </aside>
+
+        {isMobile && <NavMask navVisible={navVisible} toggleNavVisible={toggleNavVisible} />}
       </>
     );
   },
