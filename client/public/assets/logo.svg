@@ -1,0 +1,42 @@
+<svg width="450" height="100" viewBox="0 0 450 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for the 'Z' shape: Bright Cyan to Deep Purple, mimicking the source image's light and color shift. -->
+    <linearGradient id="ZGradient" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#3FEFFF"/>
+      <stop offset="100%" stop-color="#9E3FFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- The Stylized 'Z' Symbol (The first letter) -->
+  <g transform="translate(10 10)">
+    <!-- Main Z shape: a stylized, rounded, thick letter with a slight horizontal skew to match the logo design. -->
+    <path
+      id="ZShape"
+      d="M80 10C80 4.47715 75.5228 0 70 0H20C14.4772 0 10 4.47715 10 10V35C10 40.5228 14.4772 45 20 45H70C75.5228 45 80 49.4772 80 55V80C80 85.5228 75.5228 90 70 90H20C14.4772 90 10 85.5228 10 80V55C10 49.4772 14.4772 45 20 45H70C75.5228 45 80 40.5228 80 35V10Z"
+      style="transform: skewX(-15deg); transform-origin: 50% 50%;"
+      fill="url(#ZGradient)"
+    />
+
+    <!-- Circuitry Detail (placed inside the bottom-left curve of the 'Z') -->
+    <g transform="translate(25 55) scale(0.3)" fill="#FFFFFF" opacity="0.4">
+      <!-- Main curved circuit line -->
+      <path d="M10 50 L 50 10 C 60 0 80 0 90 10 L 120 40" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- Small pads/dots -->
+      <circle cx="20" cy="50" r="5"/>
+      <circle cx="50" cy="10" r="5"/>
+      <circle cx="90" cy="10" r="5"/>
+      <circle cx="120" cy="40" r="5"/>
+      <!-- Connecting line segments -->
+      <line x1="90" y1="10" x2="100" y2="10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+      <line x1="85" y1="15" x2="85" y2="25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- The Text "enoAI" is positioned to immediately follow the graphic 'Z', forming the full name ZenoAI. -->
+  <text x="100.5" y="60.5" font-family="Inter, Arial, sans-serif" font-weight="bold" font-size="60" fill="#303030">
+    enoAI
+  </text>
+  <text x="100" y="60" font-family="Inter, Arial, sans-serif" font-weight="bold" font-size="60" fill="#4a4a4a">
+    enoAI
+  </text>
+</svg>
