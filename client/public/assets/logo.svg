@@ -9,16 +9,18 @@
 
   <!-- The Stylized 'Z' Symbol (The first letter) -->
   <g transform="translate(10 10)">
-    <!-- Main Z shape: a stylized, rounded, thick letter with a slight horizontal skew to match the logo design. -->
+    <!-- Redrawn Z shape: A single, continuous, smoothly rounded path (like a ribbon) to perfectly match the logo. -->
     <path
       id="ZShape"
-      d="M80 10C80 4.47715 75.5228 0 70 0H20C14.4772 0 10 4.47715 10 10V35C10 40.5228 14.4772 45 20 45H70C75.5228 45 80 49.4772 80 55V80C80 85.5228 75.5228 90 70 90H20C14.4772 90 10 85.5228 10 80V55C10 49.4772 14.4772 45 20 45H70C75.5228 45 80 40.5228 80 35V10Z"
-      style="transform: skewX(-15deg); transform-origin: 50% 50%;"
       fill="url(#ZGradient)"
+      d="M20 0H80C88.8366 0 96 7.16344 96 16V30C96 38.8366 88.8366 46 80 46H20C11.1634 46 4 53.1634 4 62V76C4 84.8366 11.1634 92 20 92H80C88.8366 92 96 84.8366 96 76V62C96 53.1634 88.8366 46 80 46H20C11.1634 46 4 38.8366 4 30V16C4 7.16344 11.1634 0 20 0Z"
+      style="transform: scale(0.9, 0.9); transform-origin: 50% 50%;"
+      transform="skewX(-15) translate(0 4)"
     />
 
     <!-- Circuitry Detail (placed inside the bottom-left curve of the 'Z') -->
-    <g transform="translate(25 55) scale(0.3)" fill="#FFFFFF" opacity="0.4">
+    <!-- Adjusted position for the new, smoother 'Z' path. -->
+    <g transform="translate(18 57) scale(0.3)" fill="#FFFFFF" opacity="0.4">
       <!-- Main curved circuit line -->
       <path d="M10 50 L 50 10 C 60 0 80 0 90 10 L 120 40" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round"/>
       <!-- Small pads/dots -->
