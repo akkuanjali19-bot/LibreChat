@@ -50,9 +50,13 @@ export default function MobileNav({
           />
         </svg>
       </button>
+
+      {/* ✅ Replaced Title Section */}
       <h1 className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-center text-sm font-normal">
-        {title ?? localize('com_ui_new_chat')}
+        <span className="font-semibold text-gradient">ZenoAI</span>{' '}
+        <span className="text-gray-400 text-xs">by NGAI</span>
       </h1>
+
       <button
         type="button"
         aria-label={localize('com_ui_new_chat')}
