@@ -21,6 +21,9 @@ import ChatRoute from './ChatRoute';
 import Search from './Search';
 import Root from './Root';
 
+// 🆕 Import your new About page
+import About from './About';
+
 const AuthLayout = () => (
   <AuthContextProvider>
     <Outlet />
@@ -126,6 +129,11 @@ export const router = createBrowserRouter(
                   <AgentMarketplace />
                 </MarketplaceProvider>
               ),
+            },
+            // 🆕 Add your new route here
+            {
+              path: 'about',
+              element: <About />,
             },
           ],
         },
