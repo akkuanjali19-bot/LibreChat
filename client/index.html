@@ -7,20 +7,43 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="description" content="LibreChat - An open source chat application with support for multiple AI models" />
-    <title>LibreChat</title>
+
+    <!-- ✅ Updated Meta Info -->
+    <meta name="description" content="ZenoAI by NGAI — Smart, Fast, Creative Global AI Assistant" />
+    <meta property="og:title" content="ZenoAI" />
+    <meta property="og:description" content="Experience next-generation AI chat and image generation with ZenoAI by NGAI." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="assets/logo512.png" />
+
+    <!-- ✅ Clean Short Title -->
+    <title>ZenoAI</title>
+
+    <!-- ✅ Updated Favicon Paths (you’ll replace these files) -->
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon-180x180.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+    />
+
     <style>
       html,
       body {
         margin: 0;
         padding: 0;
         height: 100%;
+        background-color: #0d0d0d;
+      }
+      #loading-text {
+        font-family: 'Inter', sans-serif;
+        color: #9d5fff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
       }
     </style>
+
     <script>
       const theme = localStorage.getItem('color-theme');
       const loadingContainerStyle = document.createElement('style');
@@ -34,12 +57,13 @@
         const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
         backgroundColor = prefersDarkScheme ? '#0d0d0d' : '#ffffff';
       } else {
-        backgroundColor = '#ffffff';
+        backgroundColor = '#0d0d0d';
       }
 
       loadingContainerStyle.innerHTML = `
         #loading-container {
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
           height: 100vh;
@@ -48,11 +72,17 @@
       `;
       document.head.appendChild(loadingContainerStyle);
     </script>
+
+    <!-- ✅ Main App Entry -->
     <script defer type="module" src="/src/main.jsx"></script>
   </head>
+
   <body>
     <div id="root">
-      <div id="loading-container"></div>
+      <div id="loading-container">
+        <img src="assets/logo192.png" alt="ZenoAI Logo" width="80" height="80" />
+        <p id="loading-text">Loading ZenoAI by NGAI...</p>
+      </div>
     </div>
   </body>
 </html>
